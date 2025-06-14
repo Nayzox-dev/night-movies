@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lecture du film - NayzCine</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #000;
+      height: 100%;
+      overflow: hidden;
+    }
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <video id="moviePlayer" controls autoplay></video>
+
+  <script>
+    const title = localStorage.getItem('currentMovieTitle')?.toLowerCase();
+    let source = '';
+
+    if (title?.includes('mission') && title?.includes('impossible')) {
+      source = "https://nayzcine-parent.b-cdn.net/Mission_%20Impossible%20-%20The%20Final%20Reckoning(mvnia.fun).mp4";
+    } else if (title?.includes('destination') && title?.includes('finale')) {
+      source = "https://nayzcine-parent.b-cdn.net/Destination%20finale%20_%20Bloodlines(mvnia.fun).mp4";
+    }
+
+    if (source) {
+      const video = document.getElementById('moviePlayer');
+      const sourceElement = document.createElement('source');
+      sourceElement.src = source;
+      sourceElement.type = 'video/mp4';
+      video.appendChild(sourceElement);
+    } else {
+      document.body.innerHTML = '<h1 style="color: white; text-align: center; margin-top: 20%;">Film introuvable</h1>';
+    }
+  </script>
+</body>
+</html>
