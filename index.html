@@ -3,118 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NayzCine - Sélection</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <title>Visionnage de La Main</title>
   <style>
-    html, body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #0b0b0b;
-      color: #fff;
-      margin: 0;
-      padding: 0;
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-      overflow: hidden;
+      margin: 0;
+      background-color: #000;
     }
-    .card {
-      background-color: #111;
-      border-radius: 1rem;
-      padding: 0.75rem;
-      overflow: hidden;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      max-width: 220px;
-      cursor: pointer;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-    }
-    .label {
-      position: absolute;
-      top: 0.5rem;
-      left: 0.5rem;
-      background-color: black;
-      color: white;
-      font-size: 0.7rem;
-      font-weight: bold;
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.375rem;
+    video {
+      max-width: 100%;
+      max-height: 100%;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
     }
   </style>
 </head>
-<body class="w-full h-full flex items-center justify-center">
-  <div id="movies" class="grid grid-cols-1 sm:grid-cols-2 gap-8"></div>
-
-  <script>
-    const apiKey = '138e0046e0279e97e3c3034ff083446e';
-    const movies = [
-      'Mission Impossible The Final',
-      'Destination Finale Bloodline'
-    ];
-
-    async function fetchMovie(query) {
-      const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=fr-FR`);
-      const data = await res.json();
-      return data.results[0];
-    }
-
-    async function fetchDetails(id) {
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}&language=fr-FR`);
-      return await res.json();
-    }
-
-    function formatRuntime(mins) {
-      const h = Math.floor(mins / 60);
-      const m = mins % 60;
-      return `${h}h${m < 10 ? '0' : ''}${m}`;
-    }
-
-    async function renderMovies() {
-      const container = document.getElementById('movies');
-      for (const title of movies) {
-        const movie = await fetchMovie(title);
-        if (!movie) continue;
-
-        const details = await fetchDetails(movie.id);
-        const movieData = {
-          id: movie.id,
-          title: movie.title,
-          poster: movie.poster_path,
-          release_date: movie.release_date,
-          runtime: details.runtime,
-          overview: movie.overview,
-          genres: details.genres,
-          vote_average: movie.vote_average
-        };
-
-        const card = document.createElement('div');
-        card.className = 'card relative flex flex-col items-start';
-        card.onclick = () => {
-          localStorage.setItem('selectedMovie', JSON.stringify(movieData));
-          window.location.href = 'film.html';
-        };
-
-        card.innerHTML = `
-          <div class="relative w-full">
-            <span class="label">Film</span>
-            <img src="https://image.tmdb.org/t/p/w300${movie.poster_path}" alt="${movie.title}" class="rounded-lg w-full">
-          </div>
-          <div class="mt-3">
-            <h2 class="text-base font-bold leading-tight text-white">${movie.title}</h2>
-            <div class="text-xs text-gray-400 mt-1">
-              ${formatRuntime(details.runtime)} &nbsp;–&nbsp; ${new Date(movie.release_date).toLocaleDateString('fr-FR', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              })}
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      }
-    }
-
-    renderMovies();
-  </script>
+<body>
+  <video controls>
+    <source src="https://cineburger.xyz/movies/La-Main.mp4" type="video/mp4">
+    Votre navigateur ne supporte pas la balise vidéo.
+  </video>
 </body>
 </html>
