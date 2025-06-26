@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Visionnage de La Main</title>
   <style>
     body {
@@ -21,9 +21,27 @@
   </style>
 </head>
 <body>
-  <video controls>
+  <video id="videoPlayer" controls>
     <source src="https://cineburger.xyz/movies/The-substance.mp4" type="video/mp4">
     Votre navigateur ne supporte pas la balise vidéo.
   </video>
+
+  <script>
+    const video = document.getElementById('videoPlayer');
+    const STORAGE_KEY = 'video_la_main_position';
+
+    // Quand la vidéo est prête, essayer de reprendre
+    video.addEventListener('loadedmetadata', () => {
+      const savedTime = localStorage.getItem(STORAGE_KEY);
+      if (savedTime) {
+        video.currentTime = parseFloat(savedTime);
+      }
+    });
+
+    // Sauvegarde la position toutes les 2 secondes
+    video.addEventListener('timeupdate', () => {
+      localStorage.setItem(STORAGE_KEY, video.currentTime);
+    });
+  </script>
 </body>
 </html>
