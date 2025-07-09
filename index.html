@@ -3,34 +3,196 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Visionnage de La Main</title>
+  <title>night-movie</title>
   <style>
     body {
+      margin: 0;
+      background-color: #000;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
-      background-color: #000;
+      font-family: 'Segoe UI', sans-serif;
     }
+
     video {
       max-width: 100%;
       max-height: 100%;
-      box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+
+    #nextBtn, #titleContainer {
+      position: fixed;
+      top: 20px;
+      padding: 10px 18px;
+      background-color: rgba(255, 255, 255, 0.05);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+      font-size: 14px;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+    }
+
+    #nextBtn {
+      right: 20px;
+      cursor: pointer;
+      display: none;
+    }
+
+    #titleContainer {
+      left: 20px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #titleContainer:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    #titleText {
+      margin-right: 10px;
+      white-space: nowrap;
+    }
+
+    #arrow {
+      transition: transform 0.3s ease;
+      font-size: 12px;
+    }
+
+    #dropdown {
+      position: fixed;
+      top: 60px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.95);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      overflow: hidden;
+      min-width: 200px;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      z-index: 999;
+    }
+
+    #dropdown.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .dropdown-item {
+      padding: 12px 16px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .dropdown-item:hover {
+      background-color: rgba(255, 255, 255, 0.08);
     }
   </style>
 </head>
 <body>
+
   <video id="videoPlayer" controls>
-    <source src="https://cineburger.xyz/movies/Crazy-Bear.mp4" type="video/mp4">
+    <source src="" type="video/mp4">
     Votre navigateur ne supporte pas la balise vidéo.
   </video>
 
+  <div id="titleContainer">
+    <span id="titleText"></span>
+    <span id="arrow">&#9662;</span>
+  </div>
+
+  <div id="dropdown"></div>
+
+  <button id="nextBtn"></button>
+
   <script>
     const video = document.getElementById('videoPlayer');
+    const nextBtn = document.getElementById('nextBtn');
+    const titleText = document.getElementById('titleText');
+    const arrow = document.getElementById('arrow');
+    const titleContainer = document.getElementById('titleContainer');
+    const dropdown = document.getElementById('dropdown');
     const STORAGE_KEY = 'video_la_main_position';
 
-    // Quand la vidéo est prête, essayer de reprendre
+    const videoLinks = [
+      "https://cineburger.xyz/movies/Sinister.mp4",
+      "https://cineburger.xyz/movies/Sinister-2.mp4",
+    ];
+
+    let currentIndex = 0;
+
+    function getTitle(url) {
+      return decodeURIComponent(url.split('/').pop().replace('.mp4', '').replace(/-/g, ' '));
+    }
+
+    function setVideo(index) {
+      currentIndex = index;
+      const url = videoLinks[index];
+      video.src = url;
+      video.load();
+      video.play();
+      titleText.textContent = getTitle(url);
+      nextBtn.textContent = `Film Suivant ${index + 1}/${videoLinks.length}`;
+    }
+
+    function updateButtonVisibility() {
+      if (!document.fullscreenElement && videoLinks.length > 1) {
+        nextBtn.style.display = 'flex';
+      } else {
+        nextBtn.style.display = 'none';
+      }
+    }
+
+    function populateDropdown() {
+      dropdown.innerHTML = '';
+      videoLinks.forEach((link, index) => {
+        const div = document.createElement('div');
+        div.className = 'dropdown-item';
+        div.textContent = getTitle(link);
+        div.onclick = () => {
+          setVideo(index);
+          toggleDropdown(false);
+        };
+        dropdown.appendChild(div);
+      });
+    }
+
+    function toggleDropdown(forceClose = null) {
+      const isOpen = dropdown.classList.contains('show');
+      if (forceClose === false || (forceClose === null && isOpen)) {
+        dropdown.classList.remove('show');
+        arrow.style.transform = 'rotate(0deg)';
+      } else {
+        dropdown.classList.add('show');
+        arrow.style.transform = 'rotate(180deg)';
+      }
+    }
+
+    // Events
+    window.addEventListener('click', (e) => {
+      if (!titleContainer.contains(e.target)) {
+        toggleDropdown(false);
+      }
+    });
+
+    titleContainer.addEventListener('click', () => toggleDropdown());
+
+    nextBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % videoLinks.length;
+      setVideo(currentIndex);
+    });
+
+    document.addEventListener('fullscreenchange', updateButtonVisibility);
+    window.addEventListener('resize', updateButtonVisibility);
+
     video.addEventListener('loadedmetadata', () => {
       const savedTime = localStorage.getItem(STORAGE_KEY);
       if (savedTime) {
@@ -38,10 +200,16 @@
       }
     });
 
-    // Sauvegarde la position toutes les 2 secondes
     video.addEventListener('timeupdate', () => {
       localStorage.setItem(STORAGE_KEY, video.currentTime);
     });
+
+    window.addEventListener('load', () => {
+      populateDropdown();
+      setVideo(currentIndex);
+      updateButtonVisibility();
+    });
   </script>
+
 </body>
 </html>
