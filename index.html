@@ -99,10 +99,8 @@
 </head>
 <body>
 
-  <video id="videoPlayer" controls>
-    <source src="" type="video/mp4">
-    Votre navigateur ne supporte pas la balise vidéo.
-  </video>
+  <video id="introPlayer" autoplay></video>
+  <video id="videoPlayer" controls style="display: none;"></video>
 
   <div id="titleContainer">
     <span id="titleText"></span>
@@ -114,6 +112,7 @@
   <button id="nextBtn"></button>
 
   <script>
+    const intro = document.getElementById('introPlayer');
     const video = document.getElementById('videoPlayer');
     const nextBtn = document.getElementById('nextBtn');
     const titleText = document.getElementById('titleText');
@@ -134,13 +133,27 @@
       return decodeURIComponent(url.split('/').pop().replace('.mp4', '').replace(/-/g, ' '));
     }
 
+    function playIntroThenFilm(filmUrl) {
+      video.style.display = 'none';
+      intro.style.display = 'block';
+      intro.src = 'intro-nayzcine.mp4';
+      intro.load();
+      intro.play();
+
+      intro.onended = () => {
+        intro.style.display = 'none';
+        video.style.display = 'block';
+        video.src = filmUrl;
+        video.load();
+        video.play();
+        titleText.textContent = getTitle(filmUrl);
+      };
+    }
+
     function setVideo(index) {
       currentIndex = index;
       const url = videoLinks[index];
-      video.src = url;
-      video.load();
-      video.play();
-      titleText.textContent = getTitle(url);
+      playIntroThenFilm(url);
       nextBtn.textContent = `Film Suivant ${index + 1}/${videoLinks.length}`;
     }
 
